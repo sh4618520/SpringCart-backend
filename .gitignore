@@ -1,0 +1,19 @@
+# ======= 백엔드 (Spring Boot) 관련 예외 =======
+.gradle/
+build/
+out/
+.idea/
+*.iml
+*.ipr
+*.iws
+**/*.class
+
+# ======= OS 및 툴 관련 예외 =======
+.DS_Store
+Thumbs.db
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
