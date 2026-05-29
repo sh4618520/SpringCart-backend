@@ -34,19 +34,10 @@ public class CartService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다!"));
 
         // 2. 이 유저에게 장바구니가 있는지 조회
-        Cart cart = cartRepository.findByUserId(userId).orElse(null);
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저의 장바구니 개설이 되어 있지 않습니다. 유저 ID: " + userId));
 
-        // 3. 아예 장바구니가 없다면
-        if (cart == null) {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다!"));
-
-            cart = new Cart();
-            cart.setUser(user);
-            cartRepository.save(cart);
-        }
-
-        // 4. 해당 상품이 이미 장바구니에 있는지 확인
+        // 3. 해당 상품이 이미 장바구니에 있는지 확인
         CartItem alreadyCartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId())
                 .orElse(null);
 
@@ -65,6 +56,29 @@ public class CartService {
             return newCartItem.getId();
         }
 
+    }
+
+    @Transactional
+    public void updateCartItemQuantity(Long cartItemId, int quantity) {
+        // 1. 최소 수량은 1개 미만으로 내려가지 않는다
+        if (quantity < 1) {
+            throw new IllegalArgumentException("장바구니 수량은 최소 1개 이상이어야 합니다.");
+        }
+
+        // 2. 장바구니 항목 ID로 장바구니 아이템을 찾는다
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 장바구니 항목이 존재하지 않습니다. id: " + cartItemId));
+
+        // 3. 장바구니 항목 변경
+        cartItem.setQuantity(quantity);
+    }
+
+    @Transactional
+    public void deleteCartItem(Long cartItemId) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 장바구니 항목이 존재하지 않습니다. id: " + cartItemId));
+
+        cartItemRepository.delete(cartItem);
     }
 
     @Transactional(readOnly = true)

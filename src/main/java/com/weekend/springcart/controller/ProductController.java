@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // 나중에 리액트(Port 3000번대)랑 연동할 때 크로스 도메인 에러 막아주는 옵션
 public class ProductController {
 
     private final ProductService productService;

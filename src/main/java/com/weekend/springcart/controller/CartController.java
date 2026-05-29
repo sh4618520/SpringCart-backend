@@ -13,13 +13,12 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/carts")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
 public class CartController {
 
     private final CartService cartService;
 
     @PostMapping
-    public ResponseEntity<String> addToCart(
+    public ResponseEntity<String> addCartItem(
             @RequestParam("productId") Long productId,
             @RequestParam(value = "quantity", defaultValue = "1") int quantity) {
 
@@ -30,6 +29,18 @@ public class CartController {
         Long cartItemId = cartService.addCart(temporaryUserId, productId, quantity);
 
         return ResponseEntity.ok("장바구니 담기 성공! (장바구니 ID: " + cartItemId + ")");
+    }
+
+    @PutMapping("/{cartItemId}")
+    public ResponseEntity<String> updateCartItem(
+            @PathVariable Long cartItemId,
+            @RequestParam("quantity") int quantity) {
+        try {
+            cartService.updateCartItemQuantity(cartItemId, quantity);
+            return ResponseEntity.ok("수량이 성공적으로 변경되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping
@@ -44,4 +55,17 @@ public class CartController {
 
         return ResponseEntity.ok(result);
     }
+
+    @DeleteMapping("/{cartItemId}")
+    public ResponseEntity<String> deleteCartItem(@PathVariable Long cartItemId){
+        try {
+            // 장바구니 아이템 아이디로 장바구니 아이템 삭제
+            cartService.deleteCartItem(cartItemId);
+            return ResponseEntity.ok("장바구니 항목이 삭제되었습니다!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
 }
